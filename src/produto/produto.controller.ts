@@ -17,8 +17,8 @@ export class ProdutoController {
     produtoEntity.valor = dadosDoProduto.valor;
     produtoEntity.quantidade = dadosDoProduto.quantidade;
     produtoEntity.descricao = dadosDoProduto.descricao;
-    produtoEntity.caracteristicas = dadosDoProduto.caracteristicas;
-    produtoEntity.imagens = dadosDoProduto.imagens;
+    // produtoEntity.caracteristicas = dadosDoProduto.caracteristicas;
+    // produtoEntity.imagens = dadosDoProduto.imagens;
     produtoEntity.categoria = dadosDoProduto.categoria;
     produtoEntity.usuarioId = dadosDoProduto.usuarioId;
     this.produtoRepository.salvar(produtoEntity);
