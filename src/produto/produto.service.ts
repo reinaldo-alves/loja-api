@@ -1,9 +1,10 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { ProdutoEntity } from "./produto.entity";
 import { Repository } from "typeorm";
-import { ListaProdutoDTO } from "./dto/ListaProduto.dto";
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { AtualizaProdutoDTO } from "./dto/AtualizaProduto.dto";
+import { CriaProdutoDTO } from "./dto/CriaProduto.dto";
+import { ListaProdutoDTO } from "./dto/ListaProduto.dto";
 
 @Injectable()
 export class ProdutoService {
@@ -12,24 +13,31 @@ export class ProdutoService {
         private readonly produtoRepository: Repository<ProdutoEntity>
     ) {}
 
-    async criaProduto(produtoEntity: ProdutoEntity) {
-        await this.produtoRepository.save(produtoEntity);
+    async criaProduto(dadosDoProduto: CriaProdutoDTO) {
+        const produtoEntity = new ProdutoEntity();
+        Object.assign(produtoEntity, dadosDoProduto as ProdutoEntity);
+        return this.produtoRepository.save(produtoEntity);
     }
 
     async listaProdutos() {
-        const produtosSalvos = await this.produtoRepository.find();
-        // const produtosLista = produtosSalvos.map(
-        //     produto => new ListaProdutoDTO(produto.id, produto.nome)
-        // );
-        // return produtosLista; 
-        return produtosSalvos;
+        const produtosSalvos = await this.produtoRepository.find({
+            relations: { imagens: true, caracteristicas: true }
+        });
+        const produtosLista = produtosSalvos.map(
+            produto => new ListaProdutoDTO(produto.id, produto.nome, produto.caracteristicas, produto.imagens)
+        );
+        return produtosLista;
     }
 
     async atualizaProduto(id: string, produtoEntity: AtualizaProdutoDTO) {
-        await this.produtoRepository.update(id, produtoEntity);
+        const entityName = await this.produtoRepository.findOneBy({ id });
+        if(!entityName) throw new NotFoundException('O produto não foi encontrado');
+        Object.assign(entityName, produtoEntity as ProdutoEntity);
+        return this.produtoRepository.save(entityName);
     }
 
     async deletaProduto(id: string) {
-        await this.produtoRepository.delete(id);
+        const resultado = await this.produtoRepository.delete(id);
+        if(!resultado.affected) throw new NotFoundException('O produto não foi encontrado');
     }
 }

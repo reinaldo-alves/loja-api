@@ -21,11 +21,6 @@ export class UsuarioRepository {
         return this.usuarios;
     }
 
-    async existeComEmail(email: string) {
-        const possivelUsuario = this.usuarios.find(usuario => usuario.email === email);
-        return possivelUsuario !== undefined;
-    }
-
     async atualiza(id: string, dadosDeAtualizacao: Partial<UsuarioEntity>) {
         const usuario = this.buscaPorId(id);
         Object.entries(dadosDeAtualizacao).forEach(([chave, valor]) => {

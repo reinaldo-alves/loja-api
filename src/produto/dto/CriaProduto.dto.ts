@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsNumber, IsPositive, IsString, IsUrl, IsUUID, Length, Min, ValidateNested } from "class-validator";
+import { ArrayMinSize, IsArray, IsNotEmpty, IsNumber, IsPositive, IsString, IsUrl, Length, Min, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { ProdutoEntity } from "../produto.entity";
 
@@ -35,9 +35,6 @@ export class ImagemProdutoDTO {
 
 export class CriaProdutoDTO {
   
-  @IsUUID(undefined, { message: 'ID do usuário inválido' })
-  usuarioId: string;
-  
   @IsString({ message: 'O nome do produto precisa ser uma sequencia de caracteres' })
   @IsNotEmpty({ message: 'O nome do produto não pode ser vazio' })
   nome: string;
@@ -47,8 +44,8 @@ export class CriaProdutoDTO {
   valor: number;
   
   @IsNumber({maxDecimalPlaces: 0, allowNaN: false, allowInfinity: false}, { message: 'A quantidade precisa ser um número inteiro' })
-  @Min(0, { message: 'A quantidade precisa ser um número igual ou maior que zero' })
-  quantidade: number;
+  @Min(0, { message: 'A quantidade disponível do produto precisa ser um número igual ou maior que zero' })
+  quantidadeDisponivel: number;
   
   @IsString({ message: 'A descrição do produto precisa ser uma sequencia de caracteres' })
   @Length(1, 1000, { message: 'A descrição não pode ser vazia ou maior que 1000 caracteres' })

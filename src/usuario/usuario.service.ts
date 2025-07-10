@@ -2,8 +2,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { UsuarioEntity } from "./usuario.entity";
 import { Repository } from "typeorm";
 import { ListaUsuarioDTO } from "./dto/ListaUsuario.dto";
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { AtualizaUsuarioDTO } from "./dto/AtualizaUsuario.dto";
+import { CriaUsuarioDTO } from "./dto/CriaUsuario.dto";
 
 @Injectable()
 export class UsuarioService {
@@ -12,8 +13,10 @@ export class UsuarioService {
         private readonly usuarioRepository: Repository<UsuarioEntity>
     ) {}
 
-    async criaUsuario(usuarioEntity: UsuarioEntity) {
-        await this.usuarioRepository.save(usuarioEntity);
+    async criaUsuario(dadosDoUsuario: CriaUsuarioDTO) {
+        const usuarioEntity = new UsuarioEntity();
+        Object.assign(usuarioEntity, dadosDoUsuario as UsuarioEntity);
+        return this.usuarioRepository.save(usuarioEntity);
     }
 
     async listaUsuarios() {
@@ -24,11 +27,21 @@ export class UsuarioService {
         return usuariosLista; 
     }
 
-    async atualizaUsuario(id: string, usuarioEntity: AtualizaUsuarioDTO) {
-        await this.usuarioRepository.update(id, usuarioEntity);
+    async buscaPorEmail(email: string) {
+        const checkEmail = await this.usuarioRepository.findOne({ where: {email} });
+        if(!checkEmail) throw new NotFoundException('O email não foi encontrado.');
+        return checkEmail;
+    }
+
+    async atualizaUsuario(id: string, novosDados: AtualizaUsuarioDTO) {
+        const usuario = await this.usuarioRepository.findOneBy({ id });
+        if(!usuario) throw new NotFoundException('O usuário não foi encontrado.')
+        Object.assign(usuario, novosDados as UsuarioEntity);
+        return this.usuarioRepository.save(usuario);
     }
 
     async deletaUsuario(id: string) {
-        await this.usuarioRepository.delete(id);
+        const resultado = await this.usuarioRepository.delete(id);
+        if(!resultado.affected) throw new NotFoundException('O usuário não foi encontrado.');
     }
 }
