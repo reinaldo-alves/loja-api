@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UsuarioModule } from './usuario/usuario.module';
-import { ProdutoModule } from './produto/produto.module';
+import { UsuarioModule } from './modulos/usuario/usuario.module';
+import { ProdutoModule } from './modulos/produto/produto.module';
 import { ConfigModule } from '@nestjs/config';
 import { PostgresConfigService } from './config/postgres.config.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PedidoModule } from './pedido/pedido.module';
-import { FiltroDeExcecaoGlobal } from './filtros/filtros-de-excecao-global';
+import { PedidoModule } from './modulos/pedido/pedido.module';
+import { FiltroDeExcecaoGlobal } from './recursos/filtros/filtros-de-excecao-global';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
@@ -18,6 +20,12 @@ import { FiltroDeExcecaoGlobal } from './filtros/filtros-de-excecao-global';
     TypeOrmModule.forRootAsync({
       useClass: PostgresConfigService,
       inject: [PostgresConfigService]
+    }),
+    CacheModule.registerAsync({ 
+      useFactory: async () => ({
+        store: await redisStore({ ttl: 10000 }),
+      }),
+      isGlobal: true
     })
   ],
   providers: [
