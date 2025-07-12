@@ -8,12 +8,14 @@ import { PedidoModule } from './modulos/pedido/pedido.module';
 import { FiltroDeExcecaoGlobal } from './recursos/filtros/filtros-de-excecao-global';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { AutenticacaoModule } from './modulos/autenticacao/autenticacao.module';
 
 @Module({
   imports: [
     UsuarioModule,
     ProdutoModule,
     PedidoModule,
+    AutenticacaoModule,
     ConfigModule.forRoot({
       isGlobal: true
     }),
