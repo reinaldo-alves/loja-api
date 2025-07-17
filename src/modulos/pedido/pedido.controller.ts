@@ -1,24 +1,32 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { PedidoService } from './pedido.service';
 import { CriaPedidoDTO } from './dto/CriaPedido.dto';
 import { AtualizaPedidoDTO } from './dto/AtualizaPedido.dto';
+import { AutenticacaoGuard, RequisicaoComUsuario } from '../autenticacao/autenticacao.guard';
 
+@UseGuards(AutenticacaoGuard)
 @Controller('/pedidos')
 export class PedidoController {
   constructor(private readonly pedidoService: PedidoService) {}
 
   @Post()
-  async cadastraPedido(@Query('usuarioId') usuarioId: string, @Body() dadosDoPedido: CriaPedidoDTO) {
-    return await this.pedidoService.cadastraPedido(usuarioId, dadosDoPedido);
+  async cadastraPedido(@Req() req: RequisicaoComUsuario, @Body() dadosDoPedido: CriaPedidoDTO) {
+    const usuarioId = req.usuario.sub;
+    const pedidoCriado = await this.pedidoService.cadastraPedido(usuarioId, dadosDoPedido);
+    return {mensagem: 'Pedido feito com sucesso.', pedido: pedidoCriado};
   }
 
   @Get()
-  async obtemPedidosDeUsuario(@Query('usuarioId') usuarioId: string) {
-    return await this.pedidoService.obtemPedidosDeUsuario(usuarioId);
+  async obtemPedidosDeUsuario(@Req() req: RequisicaoComUsuario) {
+    const usuarioId = req.usuario.sub;
+    const pedidos = await this.pedidoService.obtemPedidosDeUsuario(usuarioId);
+    return {mensagem: 'Pedidos do usuário obtidos com sucesso.', pedidos};
   }
 
   @Patch('/:pedidoId')
-  async atualizaPedido(@Param('pedidoId') pedidoId: string, @Body() dadosDeAtualizacao: AtualizaPedidoDTO) {
-    return await this.pedidoService.atualizaPedido(pedidoId, dadosDeAtualizacao);
+  async atualizaPedido(@Req() req: RequisicaoComUsuario, @Param('pedidoId') pedidoId: string, @Body() dadosDeAtualizacao: AtualizaPedidoDTO) {
+    const usuarioId = req.usuario.sub;
+    const pedidoAtualizado = await this.pedidoService.atualizaPedido(pedidoId, dadosDeAtualizacao, usuarioId);
+    return {mensagem: 'Pedido atualizado com sucesso.', pedido: pedidoAtualizado};
   }
 }

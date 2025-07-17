@@ -1,10 +1,7 @@
 import { ArrayMinSize, IsArray, IsNotEmpty, IsNumber, IsPositive, IsString, IsUrl, Length, Min, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
-import { ProdutoEntity } from "../produto.entity";
 
 export class CaracteristicaProdutoDTO {
-
-  id: string;
   
   @IsString({ message: 'O nome da característica do produto precisa ser uma sequencia de caracteres' })
   @IsNotEmpty({ message: 'O nome da característica do produto não pode ser vazio' })
@@ -14,22 +11,16 @@ export class CaracteristicaProdutoDTO {
   @Length(1, 1000, { message: 'A descrição da característica não pode ser vazia ou maior que 1000 caracteres' })
   descricao: string;
 
-  produto: ProdutoEntity;
-
 }
 
 export class ImagemProdutoDTO {
 
-  id: string;
-  
   @IsUrl(undefined, { message: 'A url da imagem precisa ser uma url válida' })
   url: string;
   
   @IsString({ message: 'A descrição da imagem do produto precisa ser uma sequencia de caracteres' })
   @Length(1, 1000, { message: 'A descrição da imagem não pode ser vazia ou maior que 1000 caracteres' })
   descricao: string;
-
-  produto: ProdutoEntity;
 
 }
 
